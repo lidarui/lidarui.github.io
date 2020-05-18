@@ -6,23 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>SolrCloud更新schema.xml热加载 | Lidarui的博客</title>
+  <title>spring boot集成mongodb、solr、redis等数据源 | Lidarui的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="SolrCloud更新schema.xml热加载">
+  <meta name="description" content="spring boot集成mongodb、solr、redis等数据源">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SolrCloud更新schema.xml热加载">
-<meta property="og:url" content="http://yoursite.com/2019/02/17/SolrCloud%E6%9B%B4%E6%96%B0schema.xml%E7%83%AD%E5%8A%A0%E8%BD%BD/index.html">
+<meta property="og:title" content="spring boot集成mongodb、solr、redis等数据源">
+<meta property="og:url" content="http://yoursite.com/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/index.html">
 <meta property="og:site_name" content="Lidarui的博客">
-<meta property="og:description" content="SolrCloud更新schema.xml热加载">
+<meta property="og:description" content="spring boot集成mongodb、solr、redis等数据源">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://yoursite.com/img/solrcloud-1.png">
-<meta property="article:published_time" content="2019-02-17T14:13:12.000Z">
-<meta property="article:modified_time" content="2020-05-18T04:49:06.455Z">
+<meta property="article:published_time" content="2019-02-13T03:09:12.000Z">
+<meta property="article:modified_time" content="2020-05-18T05:16:37.256Z">
 <meta property="article:author" content="Lidarui">
-<meta property="article:tag" content="Solr">
-<meta property="article:tag" content="SolrCloud">
+<meta property="article:tag" content="spring boot">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yoursite.com/img/solrcloud-1.png">
   
     <link rel="alternative" href="/atom.xml" title="Lidarui的博客" type="application/atom+xml">
   
@@ -162,41 +159,56 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-SolrCloud更新schema.xml热加载" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-spring boot集成mongodb、solr、redis等数据源" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      SolrCloud更新schema.xml热加载
+      spring boot集成mongodb、solr、redis等数据源
     </h1>
   
 
         
-        <a href="/2019/02/17/SolrCloud%E6%9B%B4%E6%96%B0schema.xml%E7%83%AD%E5%8A%A0%E8%BD%BD/" class="archive-article-date">
-  	<time datetime="2019-02-17T14:13:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-17</time>
+        <a href="/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/" class="archive-article-date">
+  	<time datetime="2019-02-13T03:09:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-13</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在对schema.xml进行修改后，要想使schema.xml生效，有2种方式：</p>
-<pre><code>1）重新启动SolrCould集群；
+        <p>  项目使用到spring boot，需要集成mongodb、solr、redis等数据源，使用强大的spring data，还是很简单的，分享一下经验。<br>spring boot推崇领配置，所以所有配置在application.properties中完成。mongodb、solr、redis等都是以集群的方式连接。</p>
+<p>application.properties中的配置信息</p>
+<pre><code>#mongodb配置
+spring.data.mongodb.host=192.168.8.100
+spring.data.mongodb.port=27017
+spring.data.mongodb.database=mmia_rd
+#solr配置
+spring.data.solr.host = http://192.168.8.101/solr/
+#redis配置
+spring.redis.cluster.nodes=192.168.8.101:6381,192.168.8.101:6382,192.168.8.101:6383,192.168.8.102:6384,192.168.8.102:6385,192.168.8.102:6386
+spring.redis.cluster.maxRedirects=8
+spring.redis.timeout=5000</code></pre><p>使用spring data的Repository接口，使用起来很方便。</p>
+<a id="more"></a>
+<p>mongodb使用</p>
+<pre><code>public interface MongoRepository&lt;T, ID extends Serializable&gt; extends PagingAndSortingRepository&lt;T, ID&gt;, QueryByExampleExecutor&lt;T&gt; { } </code></pre><p>solr使用</p>
+<pre><code>public interface SolrCrudRepository&lt;T, ID extends Serializable&gt; extends SolrRepository&lt;T, ID&gt;, PagingAndSortingRepository&lt;T, ID&gt; {}</code></pre><p>简单的CRUD可以直接使用。命名参照spring data jpa标准命名，可以自动生成查询语句</p>
+<p>redis使用</p>
+<pre><code>public class RedisTemplate&lt;K, V&gt; extends RedisAccessor implements RedisOperations&lt;K, V&gt;, BeanClassLoaderAware </code></pre><p>在类中直接注入</p>
+<pre><code>@Resource(name=&quot;stringRedisTemplate&quot;)
+private ListOperations&lt;String,String&gt; listValueOperations;
 
-2）重新加载配置文件；
+@Resource(name=&quot;redisTemplate&quot;)
+ValueOperations&lt;Object,Article&gt; valueOperations;</code></pre><p>对redis的操作是使用 RedisTemplate中的</p>
+<pre><code>private ValueOperations&lt;K, V&gt; valueOps;
+private ListOperations&lt;K, V&gt; listOps;
+private SetOperations&lt;K, V&gt; setOps;
+private ZSetOperations&lt;K, V&gt; zSetOps;</code></pre><p>完成的。</p>
+<p>对string类型的操作，spring data 已经为我们封装了</p>
+<pre><code>public class StringRedisTemplate extends RedisTemplate&lt;String, String&gt; {}</code></pre><p>如果是简单使用String类型，可以直接注入使用。</p>
 
-如果使用第1种方法，就会使整个集群处于一段时间内不可用；我比较建议使用第2种方法，下面介绍第2种方法的操作步骤。
-
-重新加载配置文件：
-
-1）更新集群的schema.xml文件，建议使用ZK统一管理，这样就只需要更新ZK上的schema.xml了；
-
-2）逐台Solr服务器重新加载配置文件。</code></pre><a id="more"></a>
-<img src="/img/solrcloud-1.png" >
-
-<pre><code>为什么使用重新加载配置文件呢？因为Collection一般都会使用Replication，所以对单台Solr进行更新操作，整个SolrCloud对外还是可以提供服务的。另外，通过WebUI的操作方式也更方便。</code></pre>
       
 
       
@@ -230,11 +242,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Solr</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">SolrCloud</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">spring boot</a>
         		</li>
       		
 		</ul>
@@ -246,7 +254,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/Solr//" class="article-tag-list-link color5">Solr</a>
+        			<a href="/categories/spring-boot//" class="article-tag-list-link color2">spring boot</a>
         		</li>
       		
 		</ul>
@@ -301,7 +309,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/02/17/SolrCloud%E6%9B%B4%E6%96%B0schema.xml%E7%83%AD%E5%8A%A0%E8%BD%BD/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -315,18 +323,18 @@
   
 <nav id="article-nav">
   
-    <a href="/2019/10/19/%E5%9F%8E%E5%B8%82%E7%A0%81%E8%A1%A8%E4%B8%8B%E8%BD%BD%20%E4%B8%AD%E5%9B%BD%E4%BA%8C%E7%BA%A7%E5%9F%8E%E5%B8%82%E7%A0%81%E8%A1%A8%E4%B8%8B%E8%BD%BD/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/02/13/maven-war-plugin%E7%9A%84%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98%20%EF%BC%883%20%E5%AD%97%E8%8A%82%E7%9A%84%20UTF-8%20%E5%BA%8F%E5%88%97%E7%9A%84%E5%AD%97%E8%8A%82%203%20%E6%97%A0%E6%95%88%EF%BC%89%E6%8A%A5%E9%94%99/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          城市码表下载 中国二级城市码表下载
+          maven-war-plugin的乱码问题 （3 字节的 UTF-8 序列的字节 3 无效）报错
         
       </div>
     </a>
   
   
-    <a href="/2019/02/14/Maven%E6%A0%B9%E6%8D%AE%E4%B8%8D%E5%90%8C%E7%8E%AF%E5%A2%83%E6%89%93%E5%8C%85%E4%B8%8D%E5%90%8C%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Maven根据不同环境打包不同配置文件</div>
+    <a href="/2017/06/21/nohup%E8%BF%9B%E7%A8%8B%E5%90%8E%E5%8F%B0%E6%89%A7%E8%A1%8C/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Linux命令nohup详解</div>
       <i class="icon-circle-right"></i>
     </a>
   

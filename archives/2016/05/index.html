@@ -6,23 +6,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>SolrCloud更新schema.xml热加载 | Lidarui的博客</title>
+  <title>Archives: 2016/5 | Lidarui的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="SolrCloud更新schema.xml热加载">
-<meta property="og:type" content="article">
-<meta property="og:title" content="SolrCloud更新schema.xml热加载">
-<meta property="og:url" content="http://yoursite.com/2019/02/17/SolrCloud%E6%9B%B4%E6%96%B0schema.xml%E7%83%AD%E5%8A%A0%E8%BD%BD/index.html">
+  <meta name="description" content="分享技术，分享生活。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lidarui的博客">
+<meta property="og:url" content="http://yoursite.com/archives/2016/05/index.html">
 <meta property="og:site_name" content="Lidarui的博客">
-<meta property="og:description" content="SolrCloud更新schema.xml热加载">
+<meta property="og:description" content="分享技术，分享生活。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://yoursite.com/img/solrcloud-1.png">
-<meta property="article:published_time" content="2019-02-17T14:13:12.000Z">
-<meta property="article:modified_time" content="2020-05-18T04:49:06.455Z">
 <meta property="article:author" content="Lidarui">
-<meta property="article:tag" content="Solr">
-<meta property="article:tag" content="SolrCloud">
+<meta property="article:tag" content="技术博客">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yoursite.com/img/solrcloud-1.png">
   
     <link rel="alternative" href="/atom.xml" title="Lidarui的博客" type="application/atom+xml">
   
@@ -162,204 +157,60 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-SolrCloud更新schema.xml热加载" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
+            
   
-    <h1 class="article-title" itemprop="name">
-      SolrCloud更新schema.xml热加载
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2016" class="archive-year">2016</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	<a href="/2016/05/23/%E8%99%9A%E6%8B%9FIP%E5%8E%9F%E7%90%86/" class="archive-article-date">
+  	<time datetime="2016-05-23T10:30:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-05-23</time>
+</a>
+        </div>
+    	 
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/2016/05/23/%E8%99%9A%E6%8B%9FIP%E5%8E%9F%E7%90%86/">虚拟IP原理</a>
     </h1>
   
 
-        
-        <a href="/2019/02/17/SolrCloud%E6%9B%B4%E6%96%B0schema.xml%E7%83%AD%E5%8A%A0%E8%BD%BD/" class="archive-article-date">
-  	<time datetime="2019-02-17T14:13:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在对schema.xml进行修改后，要想使schema.xml生效，有2种方式：</p>
-<pre><code>1）重新启动SolrCould集群；
-
-2）重新加载配置文件；
-
-如果使用第1种方法，就会使整个集群处于一段时间内不可用；我比较建议使用第2种方法，下面介绍第2种方法的操作步骤。
-
-重新加载配置文件：
-
-1）更新集群的schema.xml文件，建议使用ZK统一管理，这样就只需要更新ZK上的schema.xml了；
-
-2）逐台Solr服务器重新加载配置文件。</code></pre><a id="more"></a>
-<img src="/img/solrcloud-1.png" >
-
-<pre><code>为什么使用重新加载配置文件呢？因为Collection一般都会使用Replication，所以对单台Solr进行更新操作，整个SolrCloud对外还是可以提供服务的。另外，通过WebUI的操作方式也更方便。</code></pre>
-      
-
-      
-        <div class="page-reward">
-          <a href="javascript:;" class="page-reward-btn tooltip-top">
-            <div class="tooltip tooltip-east">
-            <span class="tooltip-item">
-              赏
-            </span>
-            <span class="tooltip-content">
-              <span class="tooltip-text">
-                <span class="tooltip-inner">
-                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
-                  <div class="reward-box">
-                    
-                    
-                  </div>
-                </span>
-              </span>
-            </span>
-          </div>
-          </a>
-        </div>
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
+        <div class="article-info info-on-right">
+          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Solr</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">SolrCloud</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">虚拟IP</a>
         		</li>
       		
 		</ul>
 	</div>
 
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Solr//" class="article-tag-list-link color5">Solr</a>
-        		</li>
-      		
-		</ul>
-	</div>
+          
 
-
-      
-
-      
-        
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
         </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/02/17/SolrCloud%E6%9B%B4%E6%96%B0schema.xml%E7%83%AD%E5%8A%A0%E8%BD%BD/" alt="微信分享二维码">
-    </div>
-</div>
-
-<div class="mask js-mask"></div>
-      
-      <div class="clearfix"></div>
-    </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-  
-<nav id="article-nav">
-  
-    <a href="/2019/10/19/%E5%9F%8E%E5%B8%82%E7%A0%81%E8%A1%A8%E4%B8%8B%E8%BD%BD%20%E4%B8%AD%E5%9B%BD%E4%BA%8C%E7%BA%A7%E5%9F%8E%E5%B8%82%E7%A0%81%E8%A1%A8%E4%B8%8B%E8%BD%BD/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          城市码表下载 中国二级城市码表下载
-        
-      </div>
-    </a>
   
   
-    <a href="/2019/02/14/Maven%E6%A0%B9%E6%8D%AE%E4%B8%8D%E5%90%8C%E7%8E%AF%E5%A2%83%E6%89%93%E5%8C%85%E4%B8%8D%E5%90%8C%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Maven根据不同环境打包不同配置文件</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
-
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-  
-  
+    </div></section>
   
 
-  
-
-  
-
-  
+    
 
 
           </div>
@@ -382,8 +233,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: true,
-		isArchive: false,
+		isPost: false,
+		isArchive: true,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
