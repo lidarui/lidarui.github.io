@@ -17,7 +17,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://yoursite.com/img/solrcloud-1.png">
 <meta property="article:published_time" content="2019-02-17T14:13:12.000Z">
-<meta property="article:modified_time" content="2020-05-18T04:03:32.231Z">
+<meta property="article:modified_time" content="2020-05-18T04:49:06.455Z">
 <meta property="article:author" content="Lidarui">
 <meta property="article:tag" content="Solr">
 <meta property="article:tag" content="SolrCloud">
@@ -193,7 +193,8 @@
 
 1）更新集群的schema.xml文件，建议使用ZK统一管理，这样就只需要更新ZK上的schema.xml了；
 
-2）逐台Solr服务器重新加载配置文件。</code></pre><img src="/img/solrcloud-1.png" >
+2）逐台Solr服务器重新加载配置文件。</code></pre><a id="more"></a>
+<img src="/img/solrcloud-1.png" >
 
 <pre><code>为什么使用重新加载配置文件呢？因为Collection一般都会使用Replication，所以对单台Solr进行更新操作，整个SolrCloud对外还是可以提供服务的。另外，通过WebUI的操作方式也更方便。</code></pre>
       

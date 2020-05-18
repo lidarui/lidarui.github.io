@@ -184,6 +184,9 @@
 <p>首先我们在操作系统中找到这个文件，然后把数据先读到缓冲区，最后把缓冲区的数据发送到网络上。</p>
 <p>现在我们考虑一下，这个数据从电脑到网络整个传输的过程，如下图描述：</p>
 <img src="/img/lingkaobei-1.png" width="500">
+
+<p>DMA copy：DMA Direct Memory Access 直接存储器访问。DMA是指外部设备不通过CPU而直接与系统内存交换数据的接口技术。</p>
+<p>CPU copy：CPU通过系统总线与其他部件连接并进行数据传输。</p>
         
           <a class="article-more-a" href="/2020/04/23/%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3/#more">more >></a>
         
@@ -281,38 +284,10 @@
  * @version V1.0.0
  */
 @GetMapping(value = &quot;/feign/upload&quot;,produces = &quot;application/json; charset=utf-8&quot;)
-Result uploadVideoAuth(@SpringQueryMap RequestVideoAuth requestVideoAuth);</code></pre><p>在feign接口参数声明之前添加 @SpringQueryMap即可。</p>
-<p>但紧接着会发现另外一个问题，当你的参数对象是有父类的时候，你会发现父类的属性是没有被映射过来的，只传递了对象本身的属性值。</p>
-<p>对于这个问题github上也给出了解决方案：添加feign配置类</p>
-<pre><code>@Configuration
-public class FeignConfiguration {
-
-    /**
-     * @Description 
-     * @date 2019/5/21 17:27
-     * @version V1.0.0
-     */
-    @Bean
-    Logger.Level feignLoggerLevel() {
-        //这里记录所有，根据实际情况选择合适的日志level
-        return Logger.Level.FULL;
-    }
-
-    /**
-     * @Description 替换解析queryMap的类，实现父类中变量的映射
-     * @date 2019/5/21 16:59
-     * @version V1.0.0
-     */
-    @Bean
-    public Feign.Builder feignBuilder() {
-        return Feign.builder()
-                .queryMapEncoder(new BeanQueryMapEncoder())
-                .retryer(Retryer.NEVER_RETRY);
-    }
-}</code></pre><p> 然后在FeignClient上去配置即可。</p>
-<pre><code>@FeignClient(value = &quot;springcloudapi&quot;,configuration = FeignConfiguration.class)
-public interface FeignVodService {}</code></pre><p>至此，使用Feign的方式在Get请求中使用有继承关系的对象当做参数接收也是没有问题的了。 </p>
-
+Result uploadVideoAuth(@SpringQueryMap RequestVideoAuth requestVideoAuth);</code></pre>
+        
+          <a class="article-more-a" href="/2020/04/13/Feign%E5%8F%91%E9%80%81get%E8%AF%B7%E6%B1%82%E4%BD%BF%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BC%A0%E5%8F%82%E9%97%AE%E9%A2%98%EF%BC%8C@SpringQueryMap%E8%A7%A3%E6%9E%90%E4%BC%A0%E5%8F%82%E5%AF%B9%E8%B1%A1%E7%88%B6%E7%B1%BB%E5%B1%9E%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/#more">more >></a>
+        
       
 
       
@@ -404,12 +379,9 @@ public interface FeignVodService {}</code></pre><p>至此，使用Feign的方式
      --common
      --api</code></pre><p>common和api在一个project下</p>
 <p>api项目依赖common项目。</p>
-<p>api项目中的bulid.gradle中添加依赖 </p>
-<pre><code>implementation project(&apos;:common&apos;)</code></pre><p>编译期间没问题，idea运行也正常，但是使用gradle bulid时报错。程序包不存在。</p>
-<p>解决办法：</p>
-<p>在common的build.gradle中加上</p>
-<pre><code>jar.enabled=true</code></pre><p>添加这个配置以后，生成的jar包就是只包含自己模块里面的代码的jar包。</p>
-
+        
+          <a class="article-more-a" href="/2020/04/11/%E9%94%99%E8%AF%AF%20%E7%A8%8B%E5%BA%8F%E5%8C%85xx%E4%B8%8D%E5%AD%98%E5%9C%A8%20%E8%A7%A3%E5%86%B3%E5%A4%9A%E4%B8%AAmodule%E4%BE%9D%E8%B5%96%EF%BC%8Cgradle%20build%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/#more">more >></a>
+        
       
 
       
@@ -504,9 +476,10 @@ public interface FeignVodService {}</code></pre><p>至此，使用Feign的方式
 
 1）更新集群的schema.xml文件，建议使用ZK统一管理，这样就只需要更新ZK上的schema.xml了；
 
-2）逐台Solr服务器重新加载配置文件。</code></pre><img src="/img/solrcloud-1.png" >
-
-<pre><code>为什么使用重新加载配置文件呢？因为Collection一般都会使用Replication，所以对单台Solr进行更新操作，整个SolrCloud对外还是可以提供服务的。另外，通过WebUI的操作方式也更方便。</code></pre>
+2）逐台Solr服务器重新加载配置文件。</code></pre>
+        
+          <a class="article-more-a" href="/2019/02/17/SolrCloud%E6%9B%B4%E6%96%B0schema.xml%E7%83%AD%E5%8A%A0%E8%BD%BD/#more">more >></a>
+        
       
 
       
