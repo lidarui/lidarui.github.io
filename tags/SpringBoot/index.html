@@ -6,12 +6,12 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Lidarui的博客</title>
+  <title>Tag: SpringBoot | Lidarui的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="分享技术，分享生活。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Lidarui的博客">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:url" content="http://yoursite.com/tags/SpringBoot/index.html">
 <meta property="og:site_name" content="Lidarui的博客">
 <meta property="og:description" content="分享技术，分享生活。">
 <meta property="og:locale" content="en_US">
@@ -159,304 +159,34 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-零拷贝技术原理详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/04/23/%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3/">零拷贝技术原理详解</a>
-    </h1>
-  
-
-        
-        <a href="/2020/04/23/%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3/" class="archive-article-date">
-  	<time datetime="2020-04-23T07:30:16.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-23</time>
-</a>
-        
-      </header>
     
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>首先声明一个概念，通常说的零拷贝技术准确来说应该表达为：用户态零拷贝技术。</p>
-<p>一、什么是零拷贝技术？<br>1.首先明确计算机数据传输过程<br>写一个小程序，完成一个从文件中读取数据，并传输到网络上的操作。</p>
-<p>首先我们在操作系统中找到这个文件，然后把数据先读到缓冲区，最后把缓冲区的数据发送到网络上。</p>
-<p>现在我们考虑一下，这个数据从电脑到网络整个传输的过程，如下图描述：</p>
-<img src="/img/lingkaobei-1.png" width="500">
-
-<p>DMA copy：DMA Direct Memory Access 直接存储器访问。DMA是指外部设备不通过CPU而直接与系统内存交换数据的接口技术。</p>
-<p>CPU copy：CPU通过系统总线与其他部件连接并进行数据传输。</p>
-<p>现在我们可以看到1-&gt;2-&gt;3-&gt;4的整个过程一共经历了四次拷贝的方式，但是真正消耗资源和浪费时间的是第二次和第三次，因为这两次都需要经过我们的CPU拷贝，而且还需要内核态和用户态之间的来回切换。想想看，我们的CPU资源是多么宝贵，要处理大量的任务。还要去拷贝大量的数据。如果能把CPU的这两次拷贝给去除掉，岂不快哉！！！既能节省CPU资源，还可以避免内核态和用户态之间的切换。</p>
-<p>这里还要先说一下用户态和内核态的区别：</p>
-<p>处于用户态执行时，进程所能访问的内存空间和对象受到限制，其所处于占有的处理器是可被抢占的</p>
-<p>处于内核态执行时，则能访问所有的内存空间和对象，且所占有的处理器是不允许被抢占的。</p>
-<p>2、优化方案<br>要去除第二次和第三次之间的拷贝，Linux开发人员也早就注意到了这个问题，于是在linux 2.1内核中，添加了 “数据被copy到socket buffer”的动作，于是我们的javaNIO，可以直接调用transferTo()的方法，就可以实现这种现象。</p>
-<img src="/img/lingkaobei-2.png" width="500">
-
-<p>现在一看，感觉性能资源都得到了很大的提升，不过现在还不并不是完美的。因为这三次拷贝还用到了CPU的拷贝技术，就是第二次。不过不要担心。Linux开发人员比我们更加深谋远虑。</p>
-<p>3.零拷贝优化方案<br>在Linux2.4 内核做了优化，取而代之的是Scatter/Gather DMA方式。只包含关于数据的位置和长度的信息的描述符被追加到了socket buffer 缓冲区中。DMA引擎直接把数据从内核缓冲区传输到协议引擎（protocol engine），从而消除了最后一次CPU copy。</p>
-<p>Scatter/Gather DMA方式会预先维护一个物理上不连续的块描述符的链表，描述符中包含有数据的起始地址和长度。传输时只需要遍历链表，按序传输数据，全部完成后发起一次中断即可，效率更高。也就是说，硬件可以通过Scatter/Gather DMA直接从内核缓冲区中取得全部数据，不需要再从内核缓冲区向Socket缓冲区拷贝数据。经过上述过程，数据只经过了2次copy就从磁盘传送出去了。这个才是真正的Zero-Copy。</p>
-<img src="/img/lingkaobei-3.png" width="500">
-
-<p>这里的零拷贝其实是根据内核状态划分的，在这里没有经过CPU的拷贝，数据在用户态的状态下，经历了零次拷贝，所以才叫做零拷贝，但不是说不拷贝。文章开始为大家明确的概念现在应该明白了吧。</p>
-<p>二、哪些地方会用到零拷贝技术<br>1、java的NIO</p>
-<p>先说java，是因为要给下面的netty做铺垫，在 Java NIO 中的通道（Channel）就相当于操作系统的内核空间（kernel space）的缓冲区，而缓冲区（Buffer）对应的相当于操作系统的用户空间（user space）中的用户缓冲区（user buffer）。</p>
-<p>堆外内存（DirectBuffer）在使用后需要应用程序手动回收，而堆内存（HeapBuffer）的数据在 GC 时可能会被自动回收。因此，在使用 HeapBuffer 读写数据时，为了避免缓冲区数据因为 GC 而丢失，NIO 会先把 HeapBuffer 内部的数据拷贝到一个临时的 DirectBuffer 中的本地内存（native memory），这个拷贝涉及到 sun.misc.Unsafe.copyMemory() 的调用，背后的实现原理与 memcpy() 类似。最后，将临时生成的 DirectBuffer 内部的数据的内存地址传给 I/O 调用函数，这样就避免了再去访问 Java 对象处理 I/O 读写。</p>
-<p>（1）MappedByteBuffer</p>
-<p>MappedByteBuffer 是 NIO 基于内存映射（mmap）这种零拷贝方式的提供的一种实现，意思是把一个文件从 position 位置开始的 size 大小的区域映射为内存映像文件。这样之添加地址映射，而不进行拷贝。</p>
-<p>（2）DirectByteBuffer</p>
-<p>DirectByteBuffer 的对象引用位于 Java 内存模型的堆里面，JVM 可以对 DirectByteBuffer 的对象进行内存分配和回收管理，是 MappedByteBuffer 的具体实现类。因此同样具有零拷贝技术。</p>
-<p>（3）FileChannel</p>
-<p>FileChannel 定义了 transferFrom() 和 transferTo() 两个抽象方法，它通过在通道和通道之间建立连接实现数据传输的。</p>
-<p>我们直接看Linux2.4的版本，socket缓冲区做了调整，DMA带收集功能。</p>
-<p>（1）DMA从拷贝至内核缓冲区</p>
-<p>（2）将数据的位置和长度的信息的描述符增加至内核空间(socket缓冲区)</p>
-<p>（3）DMA将数据从内核拷贝至协议引擎</p>
-<p>这个复制过程是零拷贝过程。</p>
-<p>2、Netty</p>
-<p>Netty 中的零拷贝和上面提到的操作系统层面上的零拷贝不太一样, 我们所说的 Netty 零拷贝完全是基于（Java 层面）用户态的。</p>
-<p>（1）Netty 通过 DefaultFileRegion 类对FileChannel 的 tranferTo() 方法进行包装，相当于是间接的通过java进行零拷贝。</p>
-<p>（2）我们的数据传输一般都是通过TCP/IP协议实现的，在实际应用中，很有可能一条完整的消息被分割为多个数据包进行网络传输，而单个的数据包对你而言是没有意义的，只有当这些数据包组成一条完整的消息时你才能做出正确的处理，而Netty可以通过零拷贝的方式将这些数据包组合成一条完整的消息供你来使用。</p>
-<p>此时零拷贝的作用范围仅在用户空间中。那Netty是如何实现的呢？为此我们就要找到Netty进行数据传输的接口，这个接口一定包含了可以实现零拷贝的功能，这个接口就是ChannelBuffer。</p>
-<p>既然有接口肯定就有实现类，一个最主要的实现类是CompositeChannelBuffer，这个类的主要作用是将多个ChannelBuffer组成一个虚拟的ChannelBuffer来进行操作</p>
-<p>为什么说是虚拟的呢，因为CompositeChannelBuffer并没有将多个ChannelBuffer真正的组合起来，而只是保存了他们的引用，这样就避免了数据的拷贝，实现了Zero Copy。</p>
-<p>（3）ByteBuf 可以通过 wrap 操作把字节数组、ByteBuf、ByteBuffer 包装成一个 ByteBuf 对象, 进而避免了拷贝操作</p>
-<p>（4）ByteBuf 支持 slice 操作, 因此可以将 ByteBuf 分解为多个共享同一个存储区域的 ByteBuf，避免了内存的拷贝</p>
-<p>3、kafka</p>
-<p>Kafka 的索引文件使用的是 mmap + write 方式，数据文件使用的是 sendfile 方式。适用于系统日志消息这种高吞吐量的大块文件的数据持久化和传输。</p>
-<p>如果有10个消费者，传统方式下，数据复制次数为4*10=40次，而使用“零拷贝技术”只需要1+10=11次，一次为从磁盘复制到页面缓存，10次表示10个消费者各自读取一次页面缓存。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
+    
       
       
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">零拷贝技术</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Linux//" class="article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/04/23/%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2020" class="archive-year">2020</a>
         </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Feign发送get请求使用对象传参问题，@SpringQueryMap解析传参对象父类属性解决方案" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
+        <div class="archives">
     
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/04/13/Feign%E5%8F%91%E9%80%81get%E8%AF%B7%E6%B1%82%E4%BD%BF%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BC%A0%E5%8F%82%E9%97%AE%E9%A2%98%EF%BC%8C@SpringQueryMap%E8%A7%A3%E6%9E%90%E4%BC%A0%E5%8F%82%E5%AF%B9%E8%B1%A1%E7%88%B6%E7%B1%BB%E5%B1%9E%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">Feign发送get请求使用对象传参问题，@SpringQueryMap解析传参对象父类属性解决方案</a>
-    </h1>
-  
-
-        
-        <a href="/2020/04/13/Feign%E5%8F%91%E9%80%81get%E8%AF%B7%E6%B1%82%E4%BD%BF%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BC%A0%E5%8F%82%E9%97%AE%E9%A2%98%EF%BC%8C@SpringQueryMap%E8%A7%A3%E6%9E%90%E4%BC%A0%E5%8F%82%E5%AF%B9%E8%B1%A1%E7%88%B6%E7%B1%BB%E5%B1%9E%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" class="archive-article-date">
-  	<time datetime="2020-04-13T06:32:13.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>使用Feign来调用Get请求时，如果方法的参数是一个对象，则会被强行转变成Post请求，然后抛出服务被拒绝的错误。</p>
-<p>具体原因就不说了，其他博客解释的很清楚。也给出方案，使用apache httpclient替换jdk UrlConnection的解决方案尝试过后并没有成功。</p>
-<p>随后就发现了这个注解</p>
-<pre><code>@SpringQueryMap</code></pre><p>这是spring cloud新增的一个注解， @SpringQueryMap 可以用来修饰pojo类，达到使用对象传递参数的需求。使用方法如下：</p>
-<pre><code>/**
- * @Description
- * @param requestVideoAuth
- * @date 2019/4/10 11:33
- * @version V1.0.0
- */
-@GetMapping(value = &quot;/feign/upload&quot;,produces = &quot;application/json; charset=utf-8&quot;)
-Result uploadVideoAuth(@SpringQueryMap RequestVideoAuth requestVideoAuth);</code></pre><p>在feign接口参数声明之前添加 @SpringQueryMap即可。</p>
-<p>但紧接着会发现另外一个问题，当你的参数对象是有父类的时候，你会发现父类的属性是没有被映射过来的，只传递了对象本身的属性值。</p>
-<p>对于这个问题github上也给出了解决方案：添加feign配置类</p>
-<pre><code>@Configuration
-public class FeignConfiguration {
-
-    /**
-     * @Description 
-     * @date 2019/5/21 17:27
-     * @version V1.0.0
-     */
-    @Bean
-    Logger.Level feignLoggerLevel() {
-        //这里记录所有，根据实际情况选择合适的日志level
-        return Logger.Level.FULL;
-    }
-
-    /**
-     * @Description 替换解析queryMap的类，实现父类中变量的映射
-     * @date 2019/5/21 16:59
-     * @version V1.0.0
-     */
-    @Bean
-    public Feign.Builder feignBuilder() {
-        return Feign.builder()
-                .queryMapEncoder(new BeanQueryMapEncoder())
-                .retryer(Retryer.NEVER_RETRY);
-    }
-}</code></pre><p> 然后在FeignClient上去配置即可。</p>
-<pre><code>@FeignClient(value = &quot;springcloudapi&quot;,configuration = FeignConfiguration.class)
-public interface FeignVodService {}</code></pre><p>至此，使用Feign的方式在Get请求中使用有继承关系的对象当做参数接收也是没有问题的了。 </p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">spring cloud</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/spring-cloud//" class="article-tag-list-link color3">spring cloud</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/04/13/Feign%E5%8F%91%E9%80%81get%E8%AF%B7%E6%B1%82%E4%BD%BF%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BC%A0%E5%8F%82%E9%97%AE%E9%A2%98%EF%BC%8C@SpringQueryMap%E8%A7%A3%E6%9E%90%E4%BC%A0%E5%8F%82%E5%AF%B9%E8%B1%A1%E7%88%B6%E7%B1%BB%E5%B1%9E%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-错误 程序包xx不存在 解决多个module依赖，gradle build失败问题" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/04/11/%E9%94%99%E8%AF%AF%20%E7%A8%8B%E5%BA%8F%E5%8C%85xx%E4%B8%8D%E5%AD%98%E5%9C%A8%20%E8%A7%A3%E5%86%B3%E5%A4%9A%E4%B8%AAmodule%E4%BE%9D%E8%B5%96%EF%BC%8Cgradle%20build%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/">错误 程序包xx不存在 解决多个module依赖，gradle build失败问题</a>
-    </h1>
-  
-
-        
-        <a href="/2020/04/11/%E9%94%99%E8%AF%AF%20%E7%A8%8B%E5%BA%8F%E5%8C%85xx%E4%B8%8D%E5%AD%98%E5%9C%A8%20%E8%A7%A3%E5%86%B3%E5%A4%9A%E4%B8%AAmodule%E4%BE%9D%E8%B5%96%EF%BC%8Cgradle%20build%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/" class="archive-article-date">
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	<a href="/2020/04/11/%E9%94%99%E8%AF%AF%20%E7%A8%8B%E5%BA%8F%E5%8C%85xx%E4%B8%8D%E5%AD%98%E5%9C%A8%20%E8%A7%A3%E5%86%B3%E5%A4%9A%E4%B8%AAmodule%E4%BE%9D%E8%B5%96%EF%BC%8Cgradle%20build%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/" class="archive-article-date">
   	<time datetime="2020-04-11T06:23:13.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-11</time>
 </a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>SpringBoot项目，同一个project下有多个moudle，module之间有依赖关系，build时报错：</p>
-<p>错误: 程序包xx不存在</p>
-<p>项目结构</p>
-<pre><code>project
+        </div>
+    	 
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/2020/04/11/%E9%94%99%E8%AF%AF%20%E7%A8%8B%E5%BA%8F%E5%8C%85xx%E4%B8%8D%E5%AD%98%E5%9C%A8%20%E8%A7%A3%E5%86%B3%E5%A4%9A%E4%B8%AAmodule%E4%BE%9D%E8%B5%96%EF%BC%8Cgradle%20build%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/">错误 程序包xx不存在 解决多个module依赖，gradle build失败问题</a>
+    </h1>
+  
 
-     --common
-     --api</code></pre><p>common和api在一个project下</p>
-<p>api项目依赖common项目。</p>
-<p>api项目中的bulid.gradle中添加依赖 </p>
-<pre><code>implementation project(&apos;:common&apos;)</code></pre><p>编译期间没问题，idea运行也正常，但是使用gradle bulid时报错。程序包不存在。</p>
-<p>解决办法：</p>
-<p>在common的build.gradle中加上</p>
-<pre><code>jar.enabled=true</code></pre><p>添加这个配置以后，生成的jar包就是只包含自己模块里面的代码的jar包。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
+        <div class="article-info info-on-right">
+          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -468,7 +198,7 @@ public interface FeignVodService {}</code></pre><p>至此，使用Feign的方式
 		</ul>
 	</div>
 
-      
+          
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -481,140 +211,17 @@ public interface FeignVodService {}</code></pre><p>至此，使用Feign的方式
 	</div>
 
 
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/04/11/%E9%94%99%E8%AF%AF%20%E7%A8%8B%E5%BA%8F%E5%8C%85xx%E4%B8%8D%E5%AD%98%E5%9C%A8%20%E8%A7%A3%E5%86%B3%E5%A4%9A%E4%B8%AAmodule%E4%BE%9D%E8%B5%96%EF%BC%8Cgradle%20build%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
+        </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
   
-    <article id="post-SolrCloud更新schema.xml热加载" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
+  
+    </div></section>
+  
+
     
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/02/17/SolrCloud%E6%9B%B4%E6%96%B0schema.xml%E7%83%AD%E5%8A%A0%E8%BD%BD/">SolrCloud更新schema.xml热加载</a>
-    </h1>
-  
-
-        
-        <a href="/2019/02/17/SolrCloud%E6%9B%B4%E6%96%B0schema.xml%E7%83%AD%E5%8A%A0%E8%BD%BD/" class="archive-article-date">
-  	<time datetime="2019-02-17T14:13:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-17</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在对schema.xml进行修改后，要想使schema.xml生效，有2种方式：</p>
-<pre><code>1）重新启动SolrCould集群；
-
-2）重新加载配置文件；
-
-如果使用第1种方法，就会使整个集群处于一段时间内不可用；我比较建议使用第2种方法，下面介绍第2种方法的操作步骤。
-
-重新加载配置文件：
-
-1）更新集群的schema.xml文件，建议使用ZK统一管理，这样就只需要更新ZK上的schema.xml了；
-
-2）逐台Solr服务器重新加载配置文件。</code></pre><img src="/img/solrcloud-1.png" >
-
-<pre><code>为什么使用重新加载配置文件呢？因为Collection一般都会使用Replication，所以对单台Solr进行更新操作，整个SolrCloud对外还是可以提供服务的。另外，通过WebUI的操作方式也更方便。</code></pre>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Solr</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">SolrCloud</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Solr//" class="article-tag-list-link color5">Solr</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/02/17/SolrCloud%E6%9B%B4%E6%96%B0schema.xml%E7%83%AD%E5%8A%A0%E8%BD%BD/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-  
 
 
           </div>
@@ -636,10 +243,10 @@ public interface FeignVodService {}</code></pre><p>至此，使用Feign的方式
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
+		isHome: false,
 		isPost: false,
 		isArchive: false,
-		isTag: false,
+		isTag: true,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
