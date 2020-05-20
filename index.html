@@ -179,25 +179,14 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>源码解析基于spring-security-core-5.0.3.RELEASE版本进行分析。<br>spring security中提供了一个加密类BCryptPasswordEncoder,可以用来对密码字符串进行加密，得到加密后的字符串。它采用哈希算法 SHA-256 + 随机盐 + 密钥对密码进行加密。<br>#一、加密算法和hash算法的区别</p>
-<p>加密算法：是一种可逆的算法，基本过程就是对原来为明文的文件或数据按某种算法进行处理，使其成为不可读的一段代码为“密文”，但在用相应的密钥进行操作之后就可以得到原来的内容 。<br>哈希算法：是一种不可逆的算法，是把任意长度的输入通过散列算法变换成固定长度的输出,输出就是散列值，不同的输入可能会散列成相同的输出，所以不可能从散列值来确定唯一的输入值。</p>
-<p>#二、源码解析<br>BCryptPasswordEncoder类实现了PasswordEncoder接口，这个接口中除了构造定义了两个方法：<br>    public interface PasswordEncoder {<br>        String encode(CharSequence rawPassword);<br>        boolean matches(CharSequence rawPassword, String encodedPassword);<br>    }<br>其中encode()是对字符串进行加密的方法，matches使用来校验传入的明文密码rawPassword是否和加密密码encodedPassword相匹配的方法。即对密码进行加密时调用encode，登录认证时调用matches</p>
+        <p><strong>源码解析基于spring-security-core-5.0.3.RELEASE版本进行分析。</strong><br>spring security中提供了一个加密类BCryptPasswordEncoder,可以用来对密码字符串进行加密，得到加密后的字符串。它采用哈希算法 SHA-256 + 随机盐 + 密钥对密码进行加密。</p>
+<h1 id="一、加密算法和hash算法的区别"><a href="#一、加密算法和hash算法的区别" class="headerlink" title="一、加密算法和hash算法的区别"></a>一、加密算法和hash算法的区别</h1><p>加密算法：是一种可逆的算法，基本过程就是对原来为明文的文件或数据按某种算法进行处理，使其成为不可读的一段代码为“密文”，但在用相应的密钥进行操作之后就可以得到原来的内容 。<br>哈希算法：是一种不可逆的算法，是把任意长度的输入通过散列算法变换成固定长度的输出,输出就是散列值，不同的输入可能会散列成相同的输出，所以不可能从散列值来确定唯一的输入值。</p>
+<h1 id="二、源码解析"><a href="#二、源码解析" class="headerlink" title="二、源码解析"></a>二、源码解析</h1><p>BCryptPasswordEncoder类实现了PasswordEncoder接口，这个接口中除了构造定义了两个方法:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public interface PasswordEncoder &#123;</span><br><span class="line">	String encode(CharSequence rawPassword);</span><br><span class="line">	boolean matches(CharSequence rawPassword, String encodedPassword);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中encode()是对字符串进行加密的方法，matches使用来校验传入的明文密码rawPassword是否和加密密码encodedPassword相匹配的方法。即对密码进行加密时调用encode，登录认证时调用matches</p>
 <p>下面我们来看下BCryptPasswordEncoder类中这两个方法的具体实现。</p>
 <ol>
-<li><p>encode方法<br> public String encode(CharSequence rawPassword) {</p>
-<pre><code>String salt;
-if (strength &gt; 0) {
-    if (random != null) {
-        salt = BCrypt.gensalt(strength, random);
-    }
-    else {
-        salt = BCrypt.gensalt(strength);
-    }
-}
-else {
-    salt = BCrypt.gensalt();
-}
-return BCrypt.hashpw(rawPassword.toString(), salt);</code></pre><p> }</p>
+<li>encode方法<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public String encode(CharSequence rawPassword) &#123;</span><br><span class="line">		String salt;</span><br><span class="line">		if (strength &gt; 0) &#123;</span><br><span class="line">			if (random !&#x3D; null) &#123;</span><br><span class="line">				salt &#x3D; BCrypt.gensalt(strength, random);</span><br><span class="line">			&#125;</span><br><span class="line">			else &#123;</span><br><span class="line">				salt &#x3D; BCrypt.gensalt(strength);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		else &#123;</span><br><span class="line">			salt &#x3D; BCrypt.gensalt();</span><br><span class="line">		&#125;</span><br><span class="line">		return BCrypt.hashpw(rawPassword.toString(), salt);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
         
           <a class="article-more-a" href="/2020/05/20/BCryptPasswordEncoder%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3/#more">more >></a>
         
