@@ -16,7 +16,7 @@
 <meta property="og:description" content="BCryptPasswordEncoder加密与解密原理详解">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-05-20T08:52:02.000Z">
-<meta property="article:modified_time" content="2020-05-20T09:16:21.315Z">
+<meta property="article:modified_time" content="2020-05-20T09:19:49.413Z">
 <meta property="article:author" content="Lidarui">
 <meta property="article:tag" content="安全">
 <meta name="twitter:card" content="summary">
@@ -197,7 +197,9 @@ if (strength &gt; 0) {
 else {
     salt = BCrypt.gensalt();
 }
-return BCrypt.hashpw(rawPassword.toString(), salt);</code></pre><p> }<br>encode方法中先经过一系列判断获得一个盐值salt，然后在调用BCrypt.hashpw方法，传入明文密码和盐值salt。那BCrypt.gensalt()方法是如何获得盐值salt的呢？<br> public static String gensalt(int log_rounds, SecureRandom random) {</p>
+return BCrypt.hashpw(rawPassword.toString(), salt);</code></pre><p> }</p>
+<a id="more"></a>
+<p>encode方法中先经过一系列判断获得一个盐值salt，然后在调用BCrypt.hashpw方法，传入明文密码和盐值salt。那BCrypt.gensalt()方法是如何获得盐值salt的呢？<br> public static String gensalt(int log_rounds, SecureRandom random) {</p>
 <pre><code>if (log_rounds &lt; MIN_LOG_ROUNDS || log_rounds &gt; MAX_LOG_ROUNDS) {
     throw new IllegalArgumentException(&quot;Bad number of rounds&quot;);
 }
