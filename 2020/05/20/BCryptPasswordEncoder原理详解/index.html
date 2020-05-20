@@ -6,17 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Category: spring cloud | Lidarui的博客</title>
+  <title>BCryptPasswordEncoder原理详解 | Lidarui的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="分享技术，分享生活。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Lidarui的博客">
-<meta property="og:url" content="http://yoursite.com/categories/spring-cloud/index.html">
+  <meta name="description" content="BCryptPasswordEncoder加密与解密原理详解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BCryptPasswordEncoder原理详解">
+<meta property="og:url" content="http://yoursite.com/2020/05/20/BCryptPasswordEncoder%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3/index.html">
 <meta property="og:site_name" content="Lidarui的博客">
-<meta property="og:description" content="分享技术，分享生活。">
+<meta property="og:description" content="BCryptPasswordEncoder加密与解密原理详解">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-05-20T08:52:02.000Z">
+<meta property="article:modified_time" content="2020-05-20T09:16:21.315Z">
 <meta property="article:author" content="Lidarui">
-<meta property="article:tag" content="技术博客">
+<meta property="article:tag" content="安全">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Lidarui的博客" type="application/atom+xml">
@@ -157,71 +159,278 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-BCryptPasswordEncoder原理详解" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/04/13/Feign%E5%8F%91%E9%80%81get%E8%AF%B7%E6%B1%82%E4%BD%BF%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BC%A0%E5%8F%82%E9%97%AE%E9%A2%98%EF%BC%8C@SpringQueryMap%E8%A7%A3%E6%9E%90%E4%BC%A0%E5%8F%82%E5%AF%B9%E8%B1%A1%E7%88%B6%E7%B1%BB%E5%B1%9E%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" class="archive-article-date">
-  	<time datetime="2020-04-13T06:32:13.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-13</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/04/13/Feign%E5%8F%91%E9%80%81get%E8%AF%B7%E6%B1%82%E4%BD%BF%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BC%A0%E5%8F%82%E9%97%AE%E9%A2%98%EF%BC%8C@SpringQueryMap%E8%A7%A3%E6%9E%90%E4%BC%A0%E5%8F%82%E5%AF%B9%E8%B1%A1%E7%88%B6%E7%B1%BB%E5%B1%9E%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">Feign发送get请求使用对象传参问题，@SpringQueryMap解析传参对象父类属性解决方案</a>
+    <h1 class="article-title" itemprop="name">
+      BCryptPasswordEncoder原理详解
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2020/05/20/BCryptPasswordEncoder%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3/" class="archive-article-date">
+  	<time datetime="2020-05-20T08:52:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-20</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>源码解析基于spring-security-core-5.0.3.RELEASE版本进行分析。<br>spring security中提供了一个加密类BCryptPasswordEncoder,可以用来对密码字符串进行加密，得到加密后的字符串。它采用哈希算法 SHA-256 + 随机盐 + 密钥对密码进行加密。<br>#一、加密算法和hash算法的区别</p>
+<p>加密算法：是一种可逆的算法，基本过程就是对原来为明文的文件或数据按某种算法进行处理，使其成为不可读的一段代码为“密文”，但在用相应的密钥进行操作之后就可以得到原来的内容 。<br>哈希算法：是一种不可逆的算法，是把任意长度的输入通过散列算法变换成固定长度的输出,输出就是散列值，不同的输入可能会散列成相同的输出，所以不可能从散列值来确定唯一的输入值。</p>
+<p>#二、源码解析<br>BCryptPasswordEncoder类实现了PasswordEncoder接口，这个接口中除了构造定义了两个方法：<br>    public interface PasswordEncoder {<br>        String encode(CharSequence rawPassword);<br>        boolean matches(CharSequence rawPassword, String encodedPassword);<br>    }<br>其中encode()是对字符串进行加密的方法，matches使用来校验传入的明文密码rawPassword是否和加密密码encodedPassword相匹配的方法。即对密码进行加密时调用encode，登录认证时调用matches</p>
+<p>下面我们来看下BCryptPasswordEncoder类中这两个方法的具体实现。</p>
+<ol>
+<li><p>encode方法<br> public String encode(CharSequence rawPassword) {</p>
+<pre><code>String salt;
+if (strength &gt; 0) {
+    if (random != null) {
+        salt = BCrypt.gensalt(strength, random);
+    }
+    else {
+        salt = BCrypt.gensalt(strength);
+    }
+}
+else {
+    salt = BCrypt.gensalt();
+}
+return BCrypt.hashpw(rawPassword.toString(), salt);</code></pre><p> }<br>encode方法中先经过一系列判断获得一个盐值salt，然后在调用BCrypt.hashpw方法，传入明文密码和盐值salt。那BCrypt.gensalt()方法是如何获得盐值salt的呢？<br> public static String gensalt(int log_rounds, SecureRandom random) {</p>
+<pre><code>if (log_rounds &lt; MIN_LOG_ROUNDS || log_rounds &gt; MAX_LOG_ROUNDS) {
+    throw new IllegalArgumentException(&quot;Bad number of rounds&quot;);
+}
+StringBuilder rs = new StringBuilder();
+byte rnd[] = new byte[BCRYPT_SALT_LEN];
+
+random.nextBytes(rnd);
+
+rs.append(&quot;$2a$&quot;);
+if (log_rounds &lt; 10) {
+    rs.append(&quot;0&quot;);
+}
+rs.append(log_rounds);
+rs.append(&quot;$&quot;);
+encode_base64(rnd, rnd.length, rs);
+return rs.toString();</code></pre><p> }<br>我们可以看到gensalt方法的两个参数：log_rounds和SecureRandom<br>SecureRandom是java提供的真随机数生成器，是密码学意义上的安全随机数。SecureRandom历史操作系统的熵池获得获得真正随机，具体SecureRandom的详细原理另行深入研究。</p>
+</li>
+<li><p>BCrypt.hashpw方法<br>生成salt后我们再看下BCrypt.hashpw方法中做了什么。<br> /**</p>
+<ul>
+<li><p>Hash a password using the OpenBSD bcrypt scheme</p>
+</li>
+<li><p>@param password the password to hash</p>
+</li>
+<li><p>@param salt the salt to hash with (perhaps generated using BCrypt.gensalt)</p>
+</li>
+<li><p>@return the hashed password</p>
+</li>
+<li><p>@throws IllegalArgumentException if invalid salt is passed</p>
+</li>
+<li><p>/<br>public static String hashpw(String password, String salt) throws IllegalArgumentException {<br>  BCrypt B;<br>  String real_salt;<br>  byte passwordb[], saltb[], hashed[];<br>  char minor = (char) 0;<br>  int rounds, off = 0;<br>  StringBuilder rs = new StringBuilder();</p>
+<p>  if (salt == null) {</p>
+<pre><code>throw new IllegalArgumentException(&quot;salt cannot be null&quot;);</code></pre><p>  }</p>
+<p>  int saltLength = salt.length();</p>
+<p>  if (saltLength &lt; 28) {</p>
+<pre><code>throw new IllegalArgumentException(&quot;Invalid salt&quot;);</code></pre><p>  }</p>
+<p>  if (salt.charAt(0) != ‘$’ || salt.charAt(1) != ‘2’) {</p>
+<pre><code>throw new IllegalArgumentException(&quot;Invalid salt version&quot;);</code></pre><p>  }<br>  if (salt.charAt(2) == ‘$’) {</p>
+<pre><code>off = 3;</code></pre><p>  }<br>  else {</p>
+<pre><code>minor = salt.charAt(2);
+if (minor != &apos;a&apos; || salt.charAt(3) != &apos;$&apos;) {
+    throw new IllegalArgumentException(&quot;Invalid salt revision&quot;);
+}
+off = 4;</code></pre><p>  }</p>
+<p>  if (saltLength - off &lt; 25) {</p>
+<pre><code>throw new IllegalArgumentException(&quot;Invalid salt&quot;);</code></pre><p>  }</p>
+<p>  // Extract number of rounds<br>  if (salt.charAt(off + 2) &gt; ‘$’) {</p>
+<pre><code>throw new IllegalArgumentException(&quot;Missing salt rounds&quot;);</code></pre><p>  }<br>  rounds = Integer.parseInt(salt.substring(off, off + 2));</p>
+<p>  real_salt = salt.substring(off + 3, off + 25);<br>  try {</p>
+<pre><code>passwordb = (password + (minor &gt;= &apos;a&apos; ? &quot;\000&quot; : &quot;&quot;)).getBytes(&quot;UTF-8&quot;);</code></pre><p>  }<br>  catch (UnsupportedEncodingException uee) {</p>
+<pre><code>throw new AssertionError(&quot;UTF-8 is not supported&quot;);</code></pre><p>  }</p>
+<p>  saltb = decode_base64(real_salt, BCRYPT_SALT_LEN);</p>
+<p>  B = new BCrypt();<br>  hashed = B.crypt_raw(passwordb, saltb, rounds);</p>
+<p>  rs.append(“$2”);<br>  if (minor &gt;= ‘a’) {</p>
+<pre><code>rs.append(minor);</code></pre><p>  }<br>  rs.append(“$”);<br>  if (rounds &lt; 10) {</p>
+<pre><code>rs.append(&quot;0&quot;);</code></pre><p>  }<br>  rs.append(rounds);<br>  rs.append(“$”);<br>  encode_base64(saltb, saltb.length, rs);<br>  encode_base64(hashed, bf_crypt_ciphertext.length * 4 - 1, rs);<br>  return rs.toString();<br>}<br>可以看到，这个方法中先根据传入的盐值salt,然后基于某种规则从salt得到<strong><em>real_salt</em></strong>,后续的操作都是用这个<strong><em>real_salt</em></strong>来进行，最终得到加密字符串。<br>所以这里有一个重点:传入的盐值salt并不是最终用来加密的盐，方法中通过salt得到了<strong><em>real_salt</em></strong>，记住这一点，因为后边的匹配方法matches中要用到这一点。<br>经过BCrypt.hashpw完成了BCryptPasswordEncoder的encode方法，对相同的每次encode加密的密文每次都是不同的，是因为每次从salt获得到的real_salt是不同的。<br>那我们就可以想到，如果使用相同的real_salt进行加密呢？那相同的明文加密后得到密文就应该是相同的。</p>
+</li>
+</ul>
+</li>
+<li><p>matches方法<br>matches方法用来判断一个明文是否和一个加密字符串对应。</p>
+<p>  public boolean matches(CharSequence rawPassword, String encodedPassword) {</p>
+<pre><code>if (encodedPassword == null || encodedPassword.length() == 0) {
+    logger.warn(&quot;Empty encoded password&quot;);
+    return false;
+}
+
+if (!BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
+    logger.warn(&quot;Encoded password does not look like BCrypt&quot;);
+    return false;
+}
+
+return BCrypt.checkpw(rawPassword.toString(), encodedPassword);</code></pre><p>  }<br>这个方法中先对密文字符串进行了一些校验，如果不符合规则直接返回不匹配，然后调用校验方法BCrypt.checkpw，第一个参数是明文，第二个参数是加密后的字符串。<br>  /**</p>
+<ul>
+<li><p>Check that a plaintext password matches a previously hashed one</p>
+</li>
+<li><p>@param plaintext the plaintext password to verify</p>
+</li>
+<li><p>@param hashed the previously-hashed password</p>
+</li>
+<li><p>@return true if the passwords match, false otherwise</p>
+</li>
+<li><p>/<br>public static boolean checkpw(String plaintext, String hashed) {<br>  return equalsNoEarlyReturn(hashed, hashpw(plaintext, hashed));<br>}</p>
+<p>static boolean equalsNoEarlyReturn(String a, String b) {<br>  char[] caa = a.toCharArray();<br>  char[] cab = b.toCharArray();</p>
+<p>  if (caa.length != cab.length) {</p>
+<pre><code>return false;</code></pre><p>  }</p>
+<p>  byte ret = 0;<br>  for (int i = 0; i &lt; caa.length; i++) {</p>
+<pre><code>ret |= caa[i] ^ cab[i];</code></pre><p>  }<br>  return ret == 0;<br>}<br>注意 equalsNoEarlyReturn(hashed, hashpw(plaintext, hashed))这里，第一个参数是加密后的字符串，而第二个参数是用刚才提过的hashpw方法对明文字符串进行加密。</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>hashpw(plaintext, hashed)第一个参数是明文，第二个参数是加密字符串，但是在这里是作为盐值salt传入的，所以就用到了刚才说的 hashpw 内部通过传入的salt得到real_salt，这样就保证了对现在要校验的明文的加密和得到已有密文的加密用的是同样的加密策略，算法和盐值都相同，这样如果新产生的密文和原来的密文相同，则这两个密文对应的明文字符串就是相等的。</p>
+<p>这也说明了加密时使用的盐值被写在了最终生成的加密字符串中。</p>
+<p>#三、总结<br>BCryptPasswordEncoder使用哈希算法+随机盐来对字符串加密。因为哈希是一种不可逆算法，所以密码认证时需要使用相同的算法+盐值来对待校验的明文进行加密，然后比较这两个密文来进行验证。BCryptPasswordEncoder在加密时通过从传入的salt中获取real_salt用来加密，保证了这一点。此种加密方式可以单独应用在任何需要安全密码的场合。</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">spring cloud</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">安全</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/spring-cloud//" class="article-tag-list-link color3">spring cloud</a>
-        		</li>
-      		
-		</ul>
-	</div>
+      
 
+      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/05/20/BCryptPasswordEncoder%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2020/04/23/%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">零拷贝技术原理详解</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -244,10 +453,10 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
-		isCategory: true,
+		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
 		root: "/",

@@ -6,12 +6,12 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Category: spring cloud | Lidarui的博客</title>
+  <title>Lidarui的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="分享技术，分享生活。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Lidarui的博客">
-<meta property="og:url" content="http://yoursite.com/categories/spring-cloud/index.html">
+<meta property="og:url" content="http://yoursite.com/page/2/index.html">
 <meta property="og:site_name" content="Lidarui的博客">
 <meta property="og:description" content="分享技术，分享生活。">
 <meta property="og:locale" content="en_US">
@@ -159,69 +159,91 @@
           <div id="js-content" class="content-ll">
             
   
-  
+    <article id="post-虚拟IP原理" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2020/04/13/Feign%E5%8F%91%E9%80%81get%E8%AF%B7%E6%B1%82%E4%BD%BF%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BC%A0%E5%8F%82%E9%97%AE%E9%A2%98%EF%BC%8C@SpringQueryMap%E8%A7%A3%E6%9E%90%E4%BC%A0%E5%8F%82%E5%AF%B9%E8%B1%A1%E7%88%B6%E7%B1%BB%E5%B1%9E%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" class="archive-article-date">
-  	<time datetime="2020-04-13T06:32:13.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-13</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
     <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/04/13/Feign%E5%8F%91%E9%80%81get%E8%AF%B7%E6%B1%82%E4%BD%BF%E7%94%A8%E5%AF%B9%E8%B1%A1%E4%BC%A0%E5%8F%82%E9%97%AE%E9%A2%98%EF%BC%8C@SpringQueryMap%E8%A7%A3%E6%9E%90%E4%BC%A0%E5%8F%82%E5%AF%B9%E8%B1%A1%E7%88%B6%E7%B1%BB%E5%B1%9E%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">Feign发送get请求使用对象传参问题，@SpringQueryMap解析传参对象父类属性解决方案</a>
+      <a class="article-title" href="/2016/05/23/%E8%99%9A%E6%8B%9FIP%E5%8E%9F%E7%90%86/">虚拟IP原理</a>
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2016/05/23/%E8%99%9A%E6%8B%9FIP%E5%8E%9F%E7%90%86/" class="archive-article-date">
+  	<time datetime="2016-05-23T10:30:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-05-23</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>高可用性HA（High Availability）指的是通过尽量缩短因日常维护操作（计划）和突发的系统崩溃（非计划）所导致的停机时间，以提高系统和应用的可用性。HA系统是目前企业防止核心计算机系统因故障停机的最有效手段。</p>
+<p>实现HA的方式，一般采用两台机器同时完成一项功能，比如数据库服务器，平常只有一台机器对外提供服务，另一台机器作为热备，当这台机器出现故障时，自动动态切换到另一台热备的机器。</p>
+<p>怎么实现故障检测的那？</p>
+<pre><code>心跳，采用定时发送一个数据包，如果机器多长时间没响应，就认为是发生故障，自动切换到热备的机器上去。</code></pre><p>怎么实现自动切换那？</p>
+<pre><code>虚IP。何为虚IP那，就是一个未分配给真实主机的IP，也就是说对外提供数据库服务器的主机除了有一个真实IP外还有一个虚IP，使用这两个IP中的 任意一个都可以连接到这台主机，所有项目中数据库链接一项配置的都是这个虚IP，当服务器发生故障无法对外提供服务时，动态将这个虚IP切换到备用主机。</code></pre>
+        
+          <a class="article-more-a" href="/2016/05/23/%E8%99%9A%E6%8B%9FIP%E5%8E%9F%E7%90%86/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">spring cloud</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">虚拟IP</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/spring-cloud//" class="article-tag-list-link color3">spring cloud</a>
-        		</li>
-      		
-		</ul>
-	</div>
+      
 
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2016/05/23/%E8%99%9A%E6%8B%9FIP%E5%8E%9F%E7%90%86/">展开全文 >></a>
+        </p>
+      
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
-  
-  
-    </div></section>
-  
 
-    
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+  
+    <nav id="page-nav">
+      <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    </nav>
+  
 
 
           </div>
@@ -243,11 +265,11 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: false,
+		isHome: true,
 		isPost: false,
 		isArchive: false,
 		isTag: false,
-		isCategory: true,
+		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
 		root: "/",
