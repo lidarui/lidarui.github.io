@@ -181,7 +181,7 @@
       
         <p><strong>源码解析基于spring-security-core-5.0.3.RELEASE版本进行分析。</strong><br>spring security中提供了一个加密类BCryptPasswordEncoder,可以用来对密码字符串进行加密，得到加密后的字符串。它采用哈希算法 SHA-256 + 随机盐 + 密钥对密码进行加密。</p>
 <h1 id="一、加密算法和hash算法的区别"><a href="#一、加密算法和hash算法的区别" class="headerlink" title="一、加密算法和hash算法的区别"></a>一、加密算法和hash算法的区别</h1><p>加密算法：是一种可逆的算法，基本过程就是对原来为明文的文件或数据按某种算法进行处理，使其成为不可读的一段代码为“密文”，但在用相应的密钥进行操作之后就可以得到原来的内容 。<br>哈希算法：是一种不可逆的算法，是把任意长度的输入通过散列算法变换成固定长度的输出,输出就是散列值，不同的输入可能会散列成相同的输出，所以不可能从散列值来确定唯一的输入值。</p>
-<h1 id="二、源码解析"><a href="#二、源码解析" class="headerlink" title="二、源码解析"></a>二、源码解析</h1><p>BCryptPasswordEncoder类实现了PasswordEncoder接口，这个接口中除了构造定义了两个方法:</p>
+<h1 id="二、源码解析"><a href="#二、源码解析" class="headerlink" title="二、源码解析"></a>二、源码解析</h1><p>BCryptPasswordEncoder类实现了PasswordEncoder接口，这个接口中除了构造方法，定义了两个方法:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public interface PasswordEncoder &#123;</span><br><span class="line">	String encode(CharSequence rawPassword);</span><br><span class="line">	boolean matches(CharSequence rawPassword, String encodedPassword);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>其中encode()是对字符串进行加密的方法，matches使用来校验传入的明文密码rawPassword是否和加密密码encodedPassword相匹配的方法。即对密码进行加密时调用encode，登录认证时调用matches</p>
 <p>下面我们来看下BCryptPasswordEncoder类中这两个方法的具体实现。</p>
@@ -785,104 +785,6 @@ Result uploadVideoAuth(@SpringQueryMap RequestVideoAuth requestVideoAuth);</code
 
 
   
-    <article id="post-spring boot集成mongodb、solr、redis等数据源" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/">spring boot集成mongodb、solr、redis等数据源</a>
-    </h1>
-  
-
-        
-        <a href="/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/" class="archive-article-date">
-  	<time datetime="2019-02-13T03:09:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>  项目使用到spring boot，需要集成mongodb、solr、redis等数据源，使用强大的spring data，还是很简单的，分享一下经验。<br>spring boot推崇领配置，所以所有配置在application.properties中完成。mongodb、solr、redis等都是以集群的方式连接。</p>
-<p>application.properties中的配置信息</p>
-<pre><code>#mongodb配置
-spring.data.mongodb.host=192.168.8.100
-spring.data.mongodb.port=27017
-spring.data.mongodb.database=mmia_rd
-#solr配置
-spring.data.solr.host = http://192.168.8.101/solr/
-#redis配置
-spring.redis.cluster.nodes=192.168.8.101:6381,192.168.8.101:6382,192.168.8.101:6383,192.168.8.102:6384,192.168.8.102:6385,192.168.8.102:6386
-spring.redis.cluster.maxRedirects=8
-spring.redis.timeout=5000</code></pre><p>使用spring data的Repository接口，使用起来很方便。</p>
-        
-          <a class="article-more-a" href="/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">spring boot</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/spring-boot//" class="article-tag-list-link color2">spring boot</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-maven-war-plugin的乱码问题 （3 字节的 UTF-8 序列的字节 3 无效）报错" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -969,6 +871,104 @@ spring.redis.timeout=5000</code></pre><p>使用spring data的Repository接口，
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2019/02/13/maven-war-plugin%E7%9A%84%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98%20%EF%BC%883%20%E5%AD%97%E8%8A%82%E7%9A%84%20UTF-8%20%E5%BA%8F%E5%88%97%E7%9A%84%E5%AD%97%E8%8A%82%203%20%E6%97%A0%E6%95%88%EF%BC%89%E6%8A%A5%E9%94%99/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-spring boot集成mongodb、solr、redis等数据源" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/">spring boot集成mongodb、solr、redis等数据源</a>
+    </h1>
+  
+
+        
+        <a href="/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/" class="archive-article-date">
+  	<time datetime="2019-02-13T03:09:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-13</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>  项目使用到spring boot，需要集成mongodb、solr、redis等数据源，使用强大的spring data，还是很简单的，分享一下经验。<br>spring boot推崇领配置，所以所有配置在application.properties中完成。mongodb、solr、redis等都是以集群的方式连接。</p>
+<p>application.properties中的配置信息</p>
+<pre><code>#mongodb配置
+spring.data.mongodb.host=192.168.8.100
+spring.data.mongodb.port=27017
+spring.data.mongodb.database=mmia_rd
+#solr配置
+spring.data.solr.host = http://192.168.8.101/solr/
+#redis配置
+spring.redis.cluster.nodes=192.168.8.101:6381,192.168.8.101:6382,192.168.8.101:6383,192.168.8.102:6384,192.168.8.102:6385,192.168.8.102:6386
+spring.redis.cluster.maxRedirects=8
+spring.redis.timeout=5000</code></pre><p>使用spring data的Repository接口，使用起来很方便。</p>
+        
+          <a class="article-more-a" href="/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">spring boot</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/spring-boot//" class="article-tag-list-link color2">spring boot</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/02/13/spring%20boot%E9%9B%86%E6%88%90mongodb%E3%80%81solr%E3%80%81redis%E7%AD%89%E6%95%B0%E6%8D%AE%E6%BA%90/">展开全文 >></a>
         </p>
       
 
@@ -1185,10 +1185,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">spring cloud</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Solr</a>
               </li>
              
@@ -1197,11 +1193,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">spring boot</a>
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+                <a href="javascript:void(0)" class="js-tag color3">spring cloud</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1210,6 +1206,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">虚拟IP</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">spring boot</a>
               </li>
              
               <li class="article-tag-list-item">
