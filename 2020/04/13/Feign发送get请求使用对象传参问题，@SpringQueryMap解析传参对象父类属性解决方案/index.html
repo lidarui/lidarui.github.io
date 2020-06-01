@@ -16,7 +16,7 @@
 <meta property="og:description" content="Feign发送get请求使用对象传参问题，@SpringQueryMap解析传参对象父类属性解决方案">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-04-13T06:32:13.000Z">
-<meta property="article:modified_time" content="2020-05-18T04:51:13.045Z">
+<meta property="article:modified_time" content="2020-06-01T06:23:17.417Z">
 <meta property="article:author" content="Lidarui">
 <meta property="article:tag" content="spring cloud">
 <meta name="twitter:card" content="summary">
@@ -190,9 +190,14 @@
  * @version V1.0.0
  */
 @GetMapping(value = &quot;/feign/upload&quot;,produces = &quot;application/json; charset=utf-8&quot;)
-Result uploadVideoAuth(@SpringQueryMap RequestVideoAuth requestVideoAuth);</code></pre><a id="more"></a>
-<p>在feign接口参数声明之前添加 @SpringQueryMap即可。</p>
-<p>但紧接着会发现另外一个问题，当你的参数对象是有父类的时候，你会发现父类的属性是没有被映射过来的，只传递了对象本身的属性值。</p>
+Result uploadVideoAuth(@SpringQueryMap RequestVideoAuth requestVideoAuth);</code></pre><p>在feign接口参数声明之前添加 @SpringQueryMap。</p>
+<p>只需在消费者的FeignService的方法上添加即可。</p>
+<a id="more"></a>
+
+<hr>
+<p>以下问题在使用spring cloud G版时会发生，<br>在最新的H版本中已经解决下面这个问题。</p>
+<hr>
+<p>当你的参数对象是有父类的时候，你会发现父类的属性是没有被映射过来的，只传递了对象本身的属性值。</p>
 <p>对于这个问题github上也给出了解决方案：添加feign配置类</p>
 <pre><code>@Configuration
 public class FeignConfiguration {
@@ -474,6 +479,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">spring cloud</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">安全</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Solr</a>
               </li>
              
@@ -482,19 +499,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Maven</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">spring cloud</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">虚拟IP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -506,7 +511,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">安全</a>
+                <a href="javascript:void(0)" class="js-tag color5">虚拟IP</a>
               </li>
             
             <div class="clearfix"></div>
